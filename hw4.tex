@@ -1,0 +1,123 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{fullpage}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{times,graphicx,epstopdf,fancyhdr,amsfonts,amsthm,amsmath,algorithm,algorithmic,xspace,hyperref}
+\usepackage[left=.75in,top=.75in,right=.75in,bottom=.75in]{geometry}
+
+%\textwidth 7in
+%\textheight 9.5in
+
+\pdfpagewidth 8.5in
+\pdfpageheight 11in 
+
+\pagestyle{fancy}
+
+
+% Margins are default 1in. on all sides
+% thus, if you wanted .5 on the left, and right
+% you'd do \oddsidemargin -.25in.
+% \evensidemargin -.25in. and
+% \textwidth 7in.
+\oddsidemargin 0in
+\evensidemargin 0in
+
+
+\newtheorem{claim}{Claim}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{observation}{Observation}
+\newtheorem{question}{Question}
+\newtheorem{problem}{Problem}
+
+\usepackage[normalem]{ulem}
+
+\begin{document}
+        
+\begin{center}
+{\textbf{CS 505 -- Spring 2021 -- Assignment 4 (100 pts, BONUS: 10 pts) --
+RNN, LSTM for language modeling and classification}}\\
+\large{\textbf{Problems due 11:59PM EST, March 27.}  }
+\end{center}
+
+\noindent In this assignment, you will learn about \textbf{text classification}
+and \textbf{language modeling} using RNN and LSTM, and use python framework for deep learning such as \textbf{pytorch}, which are popular in NLP. You have 2 weeks to finish
+this particular assignment.
+
+\paragraph{}
+
+Submit in Blackboard by 11:59PM EST, March\textbf{ 27. }
+
+--Please indicate names of those you collaborate with. 
+
+--Every late day will reduce your score by 20% until 2 days late. 
+
+--After 2 days (i.e., if you submit on the 3rd day after due date), it will
+be marked 0. 
+
+\begin{center}
+
+\textbf{Submit your (1) code/Jupyter notebook \uline{and} (2) write up in one zip file.}
+
+\paragraph{}
+\textbf{When necessary, you must show how you derive your
+answer} 
+\end{center}
+\paragraph{}
+\begin{problem} Neural Models (32 pts)
+\begin{enumerate}
+    \item (2 pts) In a news framing classification task, where you have 5 frames and your model predicts each of the frames with equal probability for an article, what is the cross entropy loss of the article in this case?
+    \item (2 pts) Suppose during training of your neural model you realize that your training loss remains high. Mention some of the ways you can reduce this \textbf{underfitting} of your neural network. 
+    \item (2 pts) After you do many changes to your neural network, you now realize that your training loss is much lower than your validation loss. Mention some of the ways you can reduce this \textbf{overfitting} of your neural network.
+    \item (2 pts) What is good about setting a large batch size for training? How about a small batch size?
+    \item (3 pts) How can an RNN be used for detecting toxic spans (spans of words containing toxic language) in a social media comment? Specifically, what should be the input to the RNN at each time step $t$? How many outputs (i.e., $\hat{y}$) are produced given a comment containing $n$ words? What is each $\hat{y}^{(t)}$ a probability distribution over? 
+    \item (3 pts) How about using RNNs for language modeling? Given a start word token as input at time step 1, what should be the input to the RNN at each time step $t >$  1? How many outputs are produced? What is each $\hat{y}^{(t)}$ a probability distribution over? 
+    \item (3 pts) How about using RNNs for frame classification? Given an article containing $n$ words as input, what should be the input to the RNN at each time step $t$? How many outputs are produced? What is each $\hat{y}^{(t)}$ a probability distribution over?
+    \item (2 pts) What is the main advantage of using RNNs for frame classification over feed forward neural network?
+    \item (3 pts) What is the disadvantage of RNN when used to classify the sentiment of a very long tweet like this? ``I am not sure I want this phone. It's too big to fit in my back pocket. I put it in and accidentally sat on it and now it's bent. I'm very disappointed. I'm now the proud owner of bendy iPhone6. Very proud." What is the appropriate sentiment for this tweet? And what would the RNN classify it as?
+    \item How about LSTM? Given this formulation of LSTM: $f_t = \sigma (W_f x_t + U_f h_{t-1} + b_f)$ (forget gate), $i_t = \sigma (W_i x_t + U_i h_{t-1} + b_i)$ and $\hat{C}_t = tanh(W_C x_t + U_C h_{t-1} + b_C)$ (input gate), $C_t = f_t * C_{t-1} + i_t * \hat{C}_t$ (update gate), and $o_t = \sigma (W_o x_t + U_o h_{t-1} + b_o)$ and $h_t = o_t * tanh (C_t)$:
+    \begin{enumerate}
+        \item (4 pts) derive the formulation of $\frac{\partial J}{U_C}$ for two time steps $t$ and $t-1$ in terms of $\frac{\partial J}{\partial h_{t}}, \frac{\partial h_t}{\partial C_t}, \frac{\partial C_t}{\partial U_C}, \frac{\partial C_t}{\partial C_{t-1}}, \frac{\partial C_{t-1}}{\partial U_C},  \frac{\partial h_t}{\partial h_{t-1}}$, and $\frac{\partial h_{t-1}}{\partial U_C}$.
+        \item (2 pts) which part of $\frac{\partial J}{U_C}$ reduces the effect of the vanishing gradient problem in RNNs?
+        \item (2 pts) How does this help classify the correct sentiment of the tweet above? 
+        \item (2 pts) Instead of using the last hidden state of LSTM to classify the tweet, what other ways we can do to improve the performance of this sentiment classification?\\
+    \end{enumerate}
+\end{enumerate}
+\end{problem}
+
+\begin{problem} LSTM for language modeling (36 points) 
+\begin{enumerate}
+    \item (5 pts) Follow the tutorial in \href{https://www.analyticsvidhya.com/blog/2020/08/build-a-natural-language-generation-nlg-system-using-pytorch/}{here} to train a word-level LSTM language modeling. Train the language model on texts from the file prideAndPrejudice.txt. Before using it to train the language model, you need to first sentence segment, then tokenize, then lower case each line of the file using Spacy. Append start-of-sentence token '$<$s$>$' and end-of-sentence '$<$/s$>$' token to each \textbf{sentence} and put each sentence in its own line. Use only words that appear more than once in this corpus and assign UNK tokens for the rest; you may also need to pad sentences that are shorter than 5 (see \href{https://github.com/gabrielloye/LSTM_Sentiment-Analysis/blob/master/main.ipynb}{here} in cell 10-12 for adding unknown: UNK token and padding: PAD token to your vocabulary). Train the language model and save the trained model (see \href{https://pytorch.org/tutorials/beginner/saving_loading_models.html}{here}). Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token.
+    \item (5 pts) Compute and report the perplexity of the saved model on test\_1.txt file. Note that the test files are already pre-processed. 
+    \item (5 pts) Train the language model as before, but with input sequence lengths of 25 (currently, it's inputs are of length 5). You may need to pad some of the shorter sentences to length 25. Save your trained model. Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token. Are there differences from the generated examples from 2.1?
+    \item (1 pts) Compute and report the perplexity of this saved model on test\_1.txt file.
+    \item (1 pts) Use the better language model (the one with the lower perplexity on test\_1.txt) to compute and report the perplexity on test\_2.txt. Note that the test files are already pre-processed. 
+    \item (5 pts) Train the better language model as before but start with  pre-trained \href{https://nlp.stanford.edu/projects/glove/}{Glove6B 100d embeddings} (see here on how to incorporate pretrained embeddings in your LSTM model). This time, use all your words, even those occurring only once in the corpus. Only assign UNK token to words that are not in Glove vocabulary and initialize random vectors in the embedding matrix for the UNK, $<$s$>$, $<$/s$>$, and PAD tokens. Save your trained model. Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token. Are there differences from the generated examples from before?
+    \item (1 pts) Compute and report the perplexity of this saved model on test\_1.txt file.
+    \item (2 pts) Train a language model with input sequence lengths of 5 as before (Question 2.1) on texts from tweet.txt. Note that this file is already pre-processed. Save your trained model. Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token.
+    \item (1 pts) Compute and report the perplexity of this saved model on test\_2.txt file.
+    \item (2 pts) Train a language model with input sequence lengths of 15 on texts from tweet.txt. Save your trained model. Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token. Are there differences from the generated examples from 2.8?
+    \item (1 pts) Compute and report the perplexity of this saved model on test\_2.txt file.
+    \item (1 pts) Use the better language model (the one with the lower perplexity on test\_2.txt) to compute and report the perplexity on test\_1.txt. 
+    \item (2 pts) Train the better language model on tweet.txt but starting from pre-trained Glove6B 100d embeddings like in 2.6. Save your trained model. Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token. 
+    \item (1 pts) Compute and report the perplexity of this saved model on test\_2.txt file.
+    \item (2 pts) Train the better language model on tweet.txt but starting from pre-trained GloveTwitter 100d like in 2.6. Save your trained model. Generate 10 examples of text from it, starting from '$<$s$>$' token and ending at '$<$/s$>$' token. 
+    \item (1 pts) Compute and report the perplexity of this saved model on test\_2.txt file. \\
+\end{enumerate}
+\end{problem}
+
+\begin{problem} LSTM for classification (32 points, BONUS: 10 pts)
+\begin{enumerate}
+    \item (5 pts) Follow the tutorial \href{https://github.com/gabrielloye/LSTM_Sentiment-Analysis/blob/master/main.ipynb}{here} on how to build LSTM model for sentiment classification. Modify the tutorial to train on your tweet sentiment data (sentiment-train.csv) and test on test data (sentiment-test.csv) from HW3 (modify the tutorial so that the train data is \textbf{not} split into train and validation). Compute and report the accuracy on the test data. 
+    \item (2 pts) Modify the model from 3.1 to use GRU. Compute and report the accuracy on the test data. 
+    \item (5 pts) Modify the model from 3.1 to use bidirectional LSTM. Compute and report the accuracy on the test data. 
+    \item (2 pts) Modify the model from 3.1 to use bidirectional GRU. Compute and report the accuracy on the test data. 
+    \item (5 pts) Pick the best model so far and train the model starting from pretrained \href{https://nlp.stanford.edu/projects/glove/}{GloveTwitter 100d}. Compute and report the accuracy on the test data. 
+    \item (10 pts) Using your best model so far, conduct a 5-fold (stratified) cross validation on your training data and a grid search to pick the best hidden size (try 128 or 512) and embedding size (try 100 or 400). Compute and report the average accuracies for each of the choice combination. 
+    \item (3 pts) Train the model on all your training data using the best combination of hyperparameters you find in 2.6. Compute and report the accuracy on the test data. 
+    \item (BONUS: 10 pts) Train your best model using the hyperparameter from 2.6 on all the \href{http://help.sentiment140.com/for-students/}{sentiment140 data}. Compute and report the accuracy on the test data from HW3 (i.e., sentiment-test.csv) . 
+\end{enumerate}
+\end{problem}
+\end{document}
